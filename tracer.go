@@ -10,21 +10,34 @@ type Tracer struct {
 	on     bool
 	depth  int
 	detail bool
+	mutex  *Mutex
 }
 
 func New() (tracer *Tracer) {
-	tracer = &Tracer{on: true, depth: 0, detail: false}
+	tracer = &Tracer{on: true, depth: 0, detail: false, mutex: new(Mutex)}
 	return tracer
 }
 
-func (tracer *Tracer) Reset() {
+func (tracer *Tracer) Reset() *Tracer {
 	tracer.on = false
 	tracer.depth = 0
 	tracer.detail = false
+	return tracer
 }
 
-func (tracer *Tracer) On() {
+func (tracer *Tracer) Disable() *Tracer {
+	tracer.on = false
+	return tracer
+}
+
+func (tracer *Tracer) Enable(enable bool) *Tracer {
+	tracer.on = enable
+	return tracer
+}
+
+func (tracer *Tracer) On() *Tracer {
 	tracer.on = true
+	return tracer
 }
 
 func CurrentScopeTraceDetail() {
@@ -40,12 +53,14 @@ func CurrentScopeTraceDetail() {
 	}
 }
 
-func (tracer *Tracer) Off() {
+func (tracer *Tracer) Off() *Tracer {
 	tracer.on = false
+	return tracer
 }
 
-func (tracer *Tracer) Detailed(set bool) {
+func (tracer *Tracer) Detailed(set bool) *Tracer {
 	tracer.detail = set
+	return tracer
 }
 
 func (tracer *Tracer) Space() (spaces string) {
@@ -93,10 +108,25 @@ func prepend(e interface{}, elems ...interface{}) []interface{} {
 	return append([]interface{}{e}, elems...)
 }
 
-func (tracer *Tracer) ScopedTrace(a ...interface{}) (exitScopeTrace func()) {
+func (tracer *Tracer) GuardedTrace(a ...interface{}) (exitScopeTrace func()) {
 	if tracer.on {
 		where := CallerInfo(tracer.detail)
 		var args []interface{}
+
+		exitScopeTrace = func() {
+			// tracer.mutex.Lock()
+			tracer.depth--
+			if tracer.detail {
+				tracer.Printf("%s ", where)
+				tracer.Println('<', a...)
+			} else {
+				tracer.Println('<', args...)
+			}
+			// tracer.mutex.Unlock()
+		}
+
+		defer tracer.mutex.Monitor()()
+		// tracer.mutex.Lock()
 		if tracer.detail {
 			tracer.Printf("%s ", where)
 			tracer.Println('>', a...)
@@ -105,6 +135,18 @@ func (tracer *Tracer) ScopedTrace(a ...interface{}) (exitScopeTrace func()) {
 			tracer.Println('>', args...)
 		}
 		tracer.depth++
+		// tracer.mutex.Unlock()
+	} else {
+		exitScopeTrace = func() {}
+	}
+	return
+}
+
+func (tracer *Tracer) ScopedTrace(a ...interface{}) (exitScopeTrace func()) {
+	if tracer.on {
+		where := CallerInfo(tracer.detail)
+		var args []interface{}
+
 		exitScopeTrace = func() {
 			tracer.depth--
 			if tracer.detail {
@@ -114,6 +156,15 @@ func (tracer *Tracer) ScopedTrace(a ...interface{}) (exitScopeTrace func()) {
 				tracer.Println('<', args...)
 			}
 		}
+
+		if tracer.detail {
+			tracer.Printf("%s ", where)
+			tracer.Println('>', a...)
+		} else {
+			args = prepend(where, a...)
+			tracer.Println('>', args...)
+		}
+		tracer.depth++
 	} else {
 		exitScopeTrace = func() {}
 	}

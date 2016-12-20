@@ -7,6 +7,9 @@ import (
 
 var tracer *Tracer = New()
 
+func noop(t *testing.T) {
+}
+
 // use deeper call to demo recursive calls
 func deeper(depth int, n int) {
 	defer tracer.ScopedTrace(fmt.Sprintf("depth %4d %4d", depth, n))()
@@ -24,6 +27,14 @@ func recursive_trace(n int) {
 		} else {
 			recursive_trace(n - 2)
 		}
+	}
+}
+
+func TestTracerRecurseChain(t *testing.T) {
+	fmt.Println()
+	defer tracer.Detailed(true).On().ScopedTrace()()
+	if tracer != nil {
+		recursive_trace(1)
 	}
 }
 
