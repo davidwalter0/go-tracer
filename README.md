@@ -1,11 +1,57 @@
----
 **tracer**
 
 enable tracing of function calls with scoped entry/exit indentation
 
-https://github.com/davidwalter0/tracer.git
+https://github.com/davidwalter0/go-tracer.git
 
-Scoped print from point of defer call to exit of a block with 0..n
+```
+go get github.com/davidwalter0/go-tracer
+```
+
+---
+**Deferable resource acquisition and release**
+
+A facet of scoped syntax is often the scoped resource acquisition,
+release semantic of a file handle or file reader
+
+One method to achieve this is to have the acquisition function return
+a release function
+
+```
+    func AcquireRelease( resource *Resource ) ( release func() ) {
+        resource.acquire()
+        return func() { resource.release() }
+    }
+
+    // Can be called then like 
+    defer AcquireRelease(&resource)()
+    // which acquires at the point of the defer call, and is released
+    // when the deferred returned method leaves the defer scope
+
+```
+
+This deferable pattern is used to setup a single scoped call from the
+defer function call point in source.
+
+Another example to acquire and release a lock
+
+```
+    import (
+        "github.com/davidwalter0/go-mutex"
+    )
+    // package scoped var
+    var monitor = mutex.NewMonitor()
+
+    func ProtectedBlock() {
+      defer monitor()()
+      // ... protected shared resources
+    }
+
+```
+
+**Tracing**
+
+Execute a scoped print from point of defer call to exit of a block with 0..n
 args to print for the trace entry and exit text.
 
 For a thread safe version, use defer GuardedTrace()() be aware of
