@@ -112,3 +112,59 @@ The unit tests dump some sample output
 ```
 
 
+---
+*Notice that defer scope is to end of function, not end of loop or block*
+
+
+
+```
+    === RUN   TestTraceLoopFuncScope
+
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 5
+    --- PASS: TestTraceLoopFuncScope (0.00s)
+    === RUN   TestTraceLoopScope
+
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope > i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope < i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:149:go-tracer.TestTraceLoopScope > i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:149:go-tracer.TestTraceLoopScope   > i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:149:go-tracer.TestTraceLoopScope     > i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:149:go-tracer.TestTraceLoopScope       > i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:149:go-tracer.TestTraceLoopScope         > i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope           > i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope           < i 1
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope           > i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope           < i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope           > i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope           < i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope           > i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope           < i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:129:go-tracer.TraceFuncScope           > i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:130:go-tracer.TraceFuncScope           < i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:154:go-tracer.TestTraceLoopScope         < i 5
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:154:go-tracer.TestTraceLoopScope       < i 4
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:154:go-tracer.TestTraceLoopScope     < i 3
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:154:go-tracer.TestTraceLoopScope   < i 2
+    /go/src/github.com/davidwalter0/go-tracer/tracer_test.go:154:go-tracer.TestTraceLoopScope < i 1
+    --- PASS: TestTraceLoopScope (0.00s)
+    PASS
+    ok  	github.com/davidwalter0/go-tracer	0.002s
+
+```

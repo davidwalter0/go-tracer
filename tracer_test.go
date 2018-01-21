@@ -96,6 +96,21 @@ func TestTracerOnOffTracer(t *testing.T) {
 	tracer.Off()
 }
 
+func TestTracerOnOffOnDetailTracer(t *testing.T) {
+	fmt.Println()
+	tracer.Reset()
+	tracer.On()
+	tracer.Detailed(true)
+	defer tracer.ScopedTrace("scoped", "fnctn", "braces")()
+	{
+		defer tracer.ScopedTrace("scoped", "in", "braces")()
+	}
+	defer tracer.ScopedTrace("scoped", "by", "func()")()
+	{
+		defer tracer.ScopedTrace("scoped", "in", "braces")()
+	}
+}
+
 func TestTracerOnOffOnTracer(t *testing.T) {
 	fmt.Println()
 	tracer.Reset()
@@ -107,5 +122,33 @@ func TestTracerOnOffOnTracer(t *testing.T) {
 	defer tracer.ScopedTrace("scoped", "by", "func()")()
 	{
 		defer tracer.ScopedTrace("scoped", "in", "braces")()
+	}
+}
+
+func TraceFuncScope(i int) {
+	defer tracer.ScopedTrace("i", i)()
+}
+
+func TestTraceLoopFuncScope(t *testing.T) {
+	fmt.Println()
+	tracer.Reset()
+	tracer.Detailed(true).On()
+	for i := 0; i < 5; i++ {
+		TraceFuncScope(i + 1)
+	}
+}
+
+func TestTraceLoopScope(t *testing.T) {
+	fmt.Println()
+	tracer.Reset()
+	tracer.Detailed(true).On()
+	for i := 0; i < 5; i++ {
+		TraceFuncScope(i + 1)
+	}
+	for i := 0; i < 5; i++ {
+		defer tracer.ScopedTrace("i", i+1)()
+	}
+	for i := 0; i < 5; i++ {
+		TraceFuncScope(i + 1)
 	}
 }

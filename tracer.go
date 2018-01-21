@@ -53,7 +53,7 @@ func (tracer *Tracer) Detail() bool {
 	return tracer.detail
 }
 
-// Enabled sets to arg enable state and returns *Tracer enabled state
+// Enable sets to arg enable state and returns *Tracer enabled state
 func (tracer *Tracer) Enable(enable bool) *Tracer {
 	tracer.on = enable
 	return tracer
@@ -75,7 +75,7 @@ func CurrentScopeTraceDetail() {
 		}
 		f := runtime.FuncForPC(pc[i])
 		file, line := f.FileLine(pc[i])
-		fmt.Printf("%s:%d %s\n", file, line, f.Name())
+		fmt.Printf("%s:%d:%s\n", file, line, f.Name())
 	}
 }
 
@@ -127,7 +127,7 @@ func CallerInfo(detailed bool) (where string) {
 	if pc[n] != 0 {
 		path := strings.Split(f.Name(), "/")
 		if detailed {
-			where = fmt.Sprintf("%s:%d %s", file, line, path[len(path)-1])
+			where = fmt.Sprintf("%s:%d:%s", file, line, path[len(path)-1])
 		} else {
 			where = fmt.Sprintf("%s", path[len(path)-1])
 		}
@@ -193,11 +193,13 @@ func (tracer *Tracer) ScopedTrace(a ...interface{}) (exitScopeTrace func()) {
 		var args []interface{}
 
 		exitScopeTrace = func() {
+			var where = CallerInfo(tracer.detail)
 			tracer.depth--
 			if tracer.detail {
 				tracer.Printf("%s ", where)
 				tracer.Println('<', a...)
 			} else {
+				args = prepend(where, a...)
 				tracer.Println('<', args...)
 			}
 		}
