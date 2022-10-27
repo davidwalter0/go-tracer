@@ -155,6 +155,7 @@ func (tracer *Tracer) GuardedTrace(a ...interface{}) (exitScopeTrace func()) {
 
 		exitScopeTrace = func() {
 			// tracer.mutex.Lock()
+			defer tracer.mutex.Monitor()()
 			tracer.depth--
 			if tracer.detail {
 				tracer.Printf("%s ", where)
